@@ -17,6 +17,29 @@ Pre-built wheels will be published to PyPI for Python 3.9–3.12 on Windows,
 macOS, and Linux once a CI release pipeline is in place. Until then, install
 from source (see **Building from source** below).
 
+## GitHub release publishing
+
+This repo now includes automated PyPI publishing through
+[release.yml](C:/Users/nkocur/Desktop/Projects/Python/tkFastScatter/.github/workflows/release.yml).
+The workflow builds:
+
+- a source distribution
+- Linux `x86_64` manylinux wheels
+- Windows `x64` wheels
+- macOS `x86_64` and `arm64` wheels
+
+Publishing uses PyPI Trusted Publishing. Before the first release, configure
+`tkfastscatter` on PyPI to trust this exact GitHub Actions workflow:
+
+1. Repository owner: `NKocur`
+2. Repository name: `tkfastscatter`
+3. Workflow path: `.github/workflows/release.yml`
+
+After that, publishing a GitHub Release will build artifacts and upload them to
+PyPI automatically. You can also run the same workflow manually from GitHub
+Actions via `workflow_dispatch`; leave `publish` unchecked for a build-only dry
+run, or enable it to upload to PyPI.
+
 ## Quick start
 
 ```python
