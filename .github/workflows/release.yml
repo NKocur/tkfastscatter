@@ -49,14 +49,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+        id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
       - name: Build wheels
         uses: PyO3/maturin-action@v1
+        env:
+          PYO3_PYTHON: ${{ steps.setup-python.outputs.python-path }}
         with:
           target: x64
-          args: --release --out dist -i python
+          args: --release --out dist -i "${{ steps.setup-python.outputs.python-path }}"
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -81,13 +84,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+        id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
       - name: Build wheels
         uses: PyO3/maturin-action@v1
+        env:
+          PYO3_PYTHON: ${{ steps.setup-python.outputs.python-path }}
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist -i python
+          args: --release --out dist -i "${{ steps.setup-python.outputs.python-path }}"
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
