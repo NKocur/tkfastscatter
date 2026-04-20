@@ -17,77 +17,82 @@ permissions:
 
 jobs:
   linux:
-    name: Build Linux wheels
+    name: Build Linux wheel (cp${{ matrix.python-version }})
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: x86_64
-          args: --release --out dist --find-interpreter
+          args: --release --out dist -i python${{ matrix.python-version }}
           manylinux: auto
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: dist-linux-x86_64
+          name: dist-linux-x86_64-cp${{ matrix.python-version }}
           path: dist
           if-no-files-found: error
 
   windows:
-    name: Build Windows wheels
+    name: Build Windows wheel (cp${{ matrix.python-version }})
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: ${{ matrix.python-version }}
           architecture: x64
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: x64
-          args: --release --out dist --find-interpreter
+          args: --release --out dist -i python
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: dist-windows-x64
+          name: dist-windows-x64-cp${{ matrix.python-version }}
           path: dist
           if-no-files-found: error
 
   macos:
-    name: Build macOS wheels (${{ matrix.target }})
+    name: Build macOS wheel (${{ matrix.target }}, cp${{ matrix.python-version }})
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
+        runner: [macos-13, macos-14]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
         include:
           - runner: macos-13
             target: x86_64
-            artifact: dist-macos-x86_64
           - runner: macos-14
             target: aarch64
-            artifact: dist-macos-aarch64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: ${{ matrix.python-version }}
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out dist -i python
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
+          name: dist-macos-${{ matrix.target }}-cp${{ matrix.python-version }}
           path: dist
           if-no-files-found: error
 
